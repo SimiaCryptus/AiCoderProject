@@ -29,9 +29,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Make Gradle wrapper executable
-        run: chmod +x ./gradlew
-
       - name: Fetch Sources
         uses: actions/checkout@v4
 
@@ -50,6 +47,9 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-home-cache-cleanup: true
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
 
       - name: Export Properties
         working-directory: intellij-aicoder
