@@ -1,0 +1,9 @@
+[submodule "intellij-aicoder"]
+	path = intellij-aicoder
+	url = ../intellij-aicoder
+[submodule "jo-penai"]
+	path = jo-penai
+	url = ../jo-penai
+[submodule "SkyeNet"]
+	path = SkyeNet
+	url = ../SkyeNet
