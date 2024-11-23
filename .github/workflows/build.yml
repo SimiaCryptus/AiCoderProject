@@ -21,6 +21,11 @@ jobs:
       changelog: ${{ steps.properties.outputs.changelog }}
       pluginVerifierHomeDir: ${{ steps.properties.outputs.pluginVerifierHomeDir }}
     steps:
+
+      - name: Configure Git
+        run: |
+          git config --global init.defaultBranch main
+
       - name: Checkout Repository
         uses: actions/checkout@v3
 
