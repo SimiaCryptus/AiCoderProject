@@ -81,9 +81,9 @@ jobs:
           echo "filename=${FILENAME:0:-4}" >> $GITHUB_OUTPUT
 
       - name: Upload artifact
-        working-directory: intellij-aicoder
         uses: actions/upload-artifact@v4
         with:
+          working-directory: intellij-aicoder
           name: ${{ steps.artifact.outputs.filename }}
           path: intellij-aicoder/build/distributions/*
 
