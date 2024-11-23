@@ -14,15 +14,16 @@ defaults:
 
 jobs:
   build:
-  - name: Checkout Repository
-    uses: actions/checkout@v3
-  - name: Build
+    name: Build
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.properties.outputs.version }}
       changelog: ${{ steps.properties.outputs.changelog }}
       pluginVerifierHomeDir: ${{ steps.properties.outputs.pluginVerifierHomeDir }}
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
       - name: Fetch Sources
         uses: actions/checkout@v4
 
