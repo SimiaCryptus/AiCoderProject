@@ -39,13 +39,8 @@ jobs:
           echo "Git configuration:"
           git config --list
 
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
       - name: Fetch Sources
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Gradle Wrapper Validation
         uses: gradle/actions/wrapper-validation@v3
