@@ -61,12 +61,13 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-home-cache-cleanup: true
-      - name: Print Gradle version
-        working-directory: intellij-aicoder
-        run: ../gradlew --version
 
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
+
+      - name: Print Gradle version
+        working-directory: intellij-aicoder
+        run: ../gradlew --version
 
       - name: Export Properties
         working-directory: intellij-aicoder
