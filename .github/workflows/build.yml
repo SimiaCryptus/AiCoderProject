@@ -16,21 +16,36 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    env:
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.logging.level=info"
     outputs:
       version: ${{ steps.properties.outputs.version }}
       changelog: ${{ steps.properties.outputs.changelog }}
       pluginVerifierHomeDir: ${{ steps.properties.outputs.pluginVerifierHomeDir }}
     steps:
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - name: Dump runner context
+        env:
+          RUNNER_CONTEXT: ${{ toJSON(runner) }}
+        run: echo "$RUNNER_CONTEXT"
 
       - name: Configure Git
         run: |
           git config --global init.defaultBranch main
+          git --version
+          echo "Git configuration:"
+          git config --list
 
       - name: Checkout Repository
         uses: actions/checkout@v3
 
       - name: Fetch Sources
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Gradle Wrapper Validation
         uses: gradle/actions/wrapper-validation@v3
@@ -42,11 +57,18 @@ jobs:
         with:
           distribution: zulu
           java-version: 17
+      - name: Print Java version
+        run: |
+          java -version
+          echo "JAVA_HOME=$JAVA_HOME"
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-home-cache-cleanup: true
+      - name: Print Gradle version
+        working-directory: intellij-aicoder
+        run: ../gradlew --version
 
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
@@ -56,9 +78,11 @@ jobs:
         id: properties
         shell: bash
         run: |
+          echo "Starting properties export..."
           PROPERTIES="$(../gradlew properties --console=plain -q)"
           VERSION="$(echo "$PROPERTIES" | grep "^version:" | cut -f2- -d ' ')"
           CHANGELOG="$(../gradlew getChangelog --unreleased --no-header --console=plain -q)"
+          echo "Detected version: $VERSION"
           
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "pluginVerifierHomeDir=~/.pluginVerifier" >> $GITHUB_OUTPUT
@@ -66,19 +90,26 @@ jobs:
           echo "changelog<<EOF" >> $GITHUB_OUTPUT
           echo "$CHANGELOG" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
+          echo "Properties export completed"
 
       - name: Build plugin
         working-directory: intellij-aicoder
-        run: ../gradlew buildPlugin
+        run: |
+          echo "Starting plugin build..."
+          ../gradlew buildPlugin --info
+          echo "Plugin build completed"
 
       - name: Prepare Plugin Artifact
         working-directory: intellij-aicoder
         id: artifact
         shell: bash
         run: |
+          echo "Preparing plugin artifact..."
           cd ${{ github.workspace }}/intellij-aicoder/build/distributions
-          FILENAME=`ls *.zip`        
+          FILENAME=`ls *.zip`
+          echo "Found artifact: $FILENAME"
           echo "filename=${FILENAME:0:-4}" >> $GITHUB_OUTPUT
+          echo "Artifact preparation completed"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -86,11 +117,17 @@ jobs:
           working-directory: intellij-aicoder
           name: ${{ steps.artifact.outputs.filename }}
           path: intellij-aicoder/build/distributions/*
+      - name: List uploaded artifacts
+        run: |
+          echo "Uploaded artifacts in distributions directory:"
+          ls -la intellij-aicoder/build/distributions/
 
   test:
     name: Test
     needs: [ build ]
     runs-on: ubuntu-latest
+    env:
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.logging.level=info"
     steps:
       - name: Fetch Sources
         uses: actions/checkout@v4
@@ -106,7 +143,10 @@ jobs:
 
       - name: Run Tests
         working-directory: intellij-aicoder
-        run: ../gradlew check
+        run: |
+          echo "Starting test execution..."
+          ../gradlew check --info
+          echo "Test execution completed"
 
       - name: Collect Tests Result
         if: ${{ failure() }}
@@ -114,6 +154,11 @@ jobs:
         with:
           name: tests-result
           path: intellij-aicoder/build/reports/tests
+      - name: Print test summary
+        if: always()
+        run: |
+          echo "Test results summary:"
+          [ -f intellij-aicoder/build/reports/tests/test/index.html ] && cat intellij-aicoder/build/reports/tests/test/index.html | grep -A 5 "<div class=\"summary\">"
 
       - name: Upload Code Coverage Report
         uses: codecov/codecov-action@v4
