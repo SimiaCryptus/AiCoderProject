@@ -74,9 +74,9 @@ jobs:
         shell: bash
         run: |
           echo "Starting properties export..."
-          PROPERTIES="$(../gradlew properties --console=plain -q)"
+          PROPERTIES="$(./gradlew properties --console=plain -q)"
           VERSION="$(echo "$PROPERTIES" | grep "^version:" | cut -f2- -d ' ')"
-          CHANGELOG="$(../gradlew getChangelog --unreleased --no-header --console=plain -q)"
+          CHANGELOG="$(./gradlew getChangelog --unreleased --no-header --console=plain -q)"
           echo "Detected version: $VERSION"
           
           echo "version=$VERSION" >> $GITHUB_OUTPUT
@@ -91,7 +91,7 @@ jobs:
         working-directory: intellij-aicoder
         run: |
           echo "Starting plugin build..."
-          ../gradlew buildPlugin --info
+          ./gradlew buildPlugin --info
           echo "Plugin build completed"
 
       - name: Prepare Plugin Artifact
