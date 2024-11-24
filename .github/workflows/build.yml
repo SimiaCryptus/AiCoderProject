@@ -184,16 +184,6 @@ jobs:
         with:
           name: tests-result
           path: intellij-aicoder/build/reports/tests
-      - name: Print test summary
-        if: always()
-        run: |
-          echo "Test results summary:"
-          [ -f intellij-aicoder/build/reports/tests/test/index.html ] && cat intellij-aicoder/build/reports/tests/test/index.html | grep -A 5 "<div class=\"summary\">"
-
-      - name: Upload Code Coverage Report
-        uses: codecov/codecov-action@v4
-        with:
-          files: intellij-aicoder/build/reports/kover/report.xml
 
   verify:
     name: Verify plugin
@@ -254,7 +244,7 @@ jobs:
 
       - name: Run Plugin Verification tasks
         working-directory: intellij-aicoder
-        run: ../gradlew verifyPlugin -Dplugin.verifier.home.dir=${{ needs.build.outputs.pluginVerifierHomeDir }}
+        run: ../gradlew verifyPlugin
 
       - name: Collect Plugin Verifier Result
         if: ${{ always() }}
