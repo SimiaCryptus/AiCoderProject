@@ -7,3 +7,6 @@
 [submodule "SkyeNet"]
 	path = SkyeNet
 	url = ../SkyeNet
+[submodule "aicoder-demotest"]
+	path = aicoder-demotest
+	url = https://github.com/SimiaCryptus/aicoder-demotest.git
