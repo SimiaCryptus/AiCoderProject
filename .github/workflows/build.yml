@@ -205,18 +205,46 @@ jobs:
         with:
           tool-cache: false
           large-packages: false
-
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - name: Dump runner context
+        env:
+          RUNNER_CONTEXT: ${{ toJSON(runner) }}
+        run: echo "$RUNNER_CONTEXT"
+      - name: Configure Git
+        run: |
+          git config --global init.defaultBranch main
+          git --version
+          echo "Git configuration:"
+          git config --list
       - name: Fetch Sources
         uses: actions/checkout@v4
-
+        with:
+          submodules: recursive
+      - name: Gradle Wrapper Validation
+        uses: gradle/actions/wrapper-validation@v3
+        with:
+          working-directory: intellij-aicoder
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: zulu
           java-version: 17
-
+      - name: Print Java version
+        run: |
+          java -version
+          echo "JAVA_HOME=$JAVA_HOME"
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-home-cache-cleanup: true
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+      - name: Print Gradle version
+        working-directory: intellij-aicoder
+        run: ../gradlew --version
 
       - name: Setup Plugin Verifier IDEs Cache
         uses: actions/cache@v4
@@ -243,8 +271,51 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Maximize Build Space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          large-packages: false
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - name: Dump runner context
+        env:
+          RUNNER_CONTEXT: ${{ toJSON(runner) }}
+        run: echo "$RUNNER_CONTEXT"
+      - name: Configure Git
+        run: |
+          git config --global init.defaultBranch main
+          git --version
+          echo "Git configuration:"
+          git config --list
       - name: Fetch Sources
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Gradle Wrapper Validation
+        uses: gradle/actions/wrapper-validation@v3
+        with:
+          working-directory: intellij-aicoder
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: 17
+      - name: Print Java version
+        run: |
+          java -version
+          echo "JAVA_HOME=$JAVA_HOME"
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-home-cache-cleanup: true
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+      - name: Print Gradle version
+        working-directory: intellij-aicoder
+        run: ../gradlew --version
 
       - name: Remove Old Release Drafts
         env:
