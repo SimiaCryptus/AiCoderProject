@@ -3,10 +3,6 @@ on:
   release:
     types: [prereleased, released]
 
-defaults:
-  run:
-    working-directory: intellij-aicoder
-
 jobs:
   release:
     name: Publish Plugin
@@ -15,38 +11,51 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - name: Free Disk Space
+      - name: Maximize Build Space
         uses: jlumbroso/free-disk-space@main
         with:
           tool-cache: false
           large-packages: false
-
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - name: Dump runner context
+        env:
+          RUNNER_CONTEXT: ${{ toJSON(runner) }}
+        run: echo "$RUNNER_CONTEXT"
+      - name: Configure Git
+        run: |
+          git config --global init.defaultBranch main
+          git --version
+          echo "Git configuration:"
+          git config --list
       - name: Fetch Sources
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.release.tag_name }}
-
+          submodules: recursive
+      - name: Gradle Wrapper Validation
+        uses: gradle/actions/wrapper-validation@v3
+        with:
+          working-directory: intellij-aicoder
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: zulu
           java-version: 17
-
+      - name: Print Java version
+        run: |
+          java -version
+          echo "JAVA_HOME=$JAVA_HOME"
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
-
-      - name: Export Properties
-        id: properties
-        shell: bash
-        run: |
-          CHANGELOG="$(cat << 'EOM' | sed -e 's/^[[:space:]]*$//g' -e '/./,$!d'
-          ${{ github.event.release.body }}
-          EOM
-          )"
-          
-          echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          echo "$CHANGELOG" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+        with:
+          gradle-home-cache-cleanup: true
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+      - name: Print Gradle version
+        working-directory: intellij-aicoder
+        run: ../gradlew --version
 
       - name: Publish Plugin
         env:
@@ -54,7 +63,8 @@ jobs:
           CERTIFICATE_CHAIN: ${{ secrets.CERTIFICATE_CHAIN }}
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           PRIVATE_KEY_PASSWORD: ${{ secrets.PRIVATE_KEY_PASSWORD }}
-        run: ./gradlew publishPlugin -x test
+        run: ../gradlew publishPlugin -x test
+        working-directory: intellij-aicoder
 
       - name: Upload Release Asset
         env:
@@ -64,35 +74,3 @@ jobs:
           for file in *; do
             gh release upload ${{ github.event.release.tag_name }} "$file"
           done
-
-      - name: Create Pull Request
-        if: ${{ steps.properties.outputs.changelog != '' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          VERSION="${{ github.event.release.tag_name }}"
-          BRANCH="changelog-update-$VERSION"
-          LABEL="release changelog"
-
-          git config user.email "action@github.com"
-          git config user.name "GitHub Action"
-
-          git checkout -b $BRANCH
-          
-          # Ensure we're modifying the changelog in the correct module
-          cd ${{ github.workspace }}/intellij-aicoder
-          
-          git add CHANGELOG.md
-          git commit -m "Changelog update - $VERSION"
-          git push --set-upstream origin $BRANCH
-          
-          gh label create "$LABEL" \
-            --description "Pull requests with release changelog update" \
-            --force \
-          || true
-
-          gh pr create \
-            --title "Changelog update - \`$VERSION\`" \
-            --body "Current pull request contains patched \`CHANGELOG.md\` file for the \`$VERSION\` version." \
-            --label "$LABEL" \
-            --head $BRANCH
