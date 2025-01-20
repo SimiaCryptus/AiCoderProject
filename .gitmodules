@@ -13,3 +13,6 @@
 [submodule "MailDB"]
 	path = MailDB
 	url = https://github.com/SimiaCryptus/MailDB.git
+[submodule "SkyenetApps"]
+	path = SkyenetApps
+	url = https://github.com/SimiaCryptus/SkyenetApps.git
