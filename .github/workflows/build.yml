@@ -342,3 +342,9 @@ jobs:
           asset_path: ./artifact/intellij-aicoder-${{ needs.build.outputs.version }}/intellij-aicoder-${{ needs.build.outputs.version }}.zip
           asset_name: intellij-aicoder-${{ needs.build.outputs.version }}.zip
           asset_content_type: application/zip
+      - name: Gradle Wrapper Validation
+        uses: gradle/actions/wrapper-validation@v3
+      - name: Gradle Wrapper Validation
+        uses: gradle/actions/wrapper-validation@v3
+      - name: Gradle Wrapper Validation
+        uses: gradle/actions/wrapper-validation@v3

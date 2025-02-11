@@ -14,8 +14,8 @@ jobs:
       - name: Maximize Build Space
         uses: jlumbroso/free-disk-space@main
         with:
-          tool-cache: false
-          large-packages: false
+          tool-cache: true
+          large-packages: true
       - name: Dump GitHub context
         env:
           GITHUB_CONTEXT: ${{ toJSON(github) }}
@@ -36,8 +36,6 @@ jobs:
           submodules: recursive
       - name: Gradle Wrapper Validation
         uses: gradle/actions/wrapper-validation@v3
-        with:
-          working-directory: intellij-aicoder
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
