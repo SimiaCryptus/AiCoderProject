@@ -51,10 +51,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
-      - name: Gradle Wrapper Validation
-        uses: gradle/actions/wrapper-validation@v3
-        with:
-          working-directory: intellij-aicoder
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -64,15 +60,11 @@ jobs:
         run: |
           java -version
           echo "JAVA_HOME=$JAVA_HOME"
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-home-cache-cleanup: true
       - name: Make Gradle wrapper executable
-        run: chmod +x ./gradlew
+        run: chmod +x intellij-aicoder/gradlew
       - name: Print Gradle version
         working-directory: intellij-aicoder
-        run: ../gradlew --version
+        run: ./gradlew --version
 
       - name: Export Properties
         working-directory: intellij-aicoder
@@ -80,9 +72,9 @@ jobs:
         shell: bash
         run: |
           echo "Starting properties export..."
-          PROPERTIES="$(../gradlew properties --console=plain -q)"
+          PROPERTIES="$(./gradlew properties --console=plain -q)"
           VERSION="$(echo "$PROPERTIES" | grep "^version:" | cut -f2- -d ' ')"
-          CHANGELOG="$(../gradlew getChangelog --unreleased --no-header --console=plain -q)"
+          CHANGELOG="$(./gradlew getChangelog --unreleased --no-header --console=plain -q)"
           echo "Detected version: $VERSION"
           
           echo "version=$VERSION" >> $GITHUB_OUTPUT
@@ -153,10 +145,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
-      - name: Gradle Wrapper Validation
-        uses: gradle/actions/wrapper-validation@v3
-        with:
-          working-directory: intellij-aicoder
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -166,21 +154,17 @@ jobs:
         run: |
           java -version
           echo "JAVA_HOME=$JAVA_HOME"
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-home-cache-cleanup: true
       - name: Make Gradle wrapper executable
-        run: chmod +x ./gradlew
+        run: chmod +x intellij-aicoder/gradlew
       - name: Print Gradle version
         working-directory: intellij-aicoder
-        run: ../gradlew --version
+        run: ./gradlew --version
 
       - name: Run Tests
         working-directory: intellij-aicoder
         run: |
           echo "Starting test execution..."
-          ../gradlew check --info
+          ./gradlew check --info
           echo "Test execution completed"
 
       - name: Collect Tests Result
@@ -239,7 +223,7 @@ jobs:
         run: chmod +x ./gradlew
       - name: Print Gradle version
         working-directory: intellij-aicoder
-        run: ../gradlew --version
+        run: ./gradlew --version
 
       - name: Setup Plugin Verifier IDEs Cache
         uses: actions/cache@v4
@@ -249,7 +233,7 @@ jobs:
 
       - name: Run Plugin Verification tasks
         working-directory: intellij-aicoder
-        run: ../gradlew verifyPlugin
+        run: ./gradlew verifyPlugin
 
       - name: Collect Plugin Verifier Result
         if: ${{ always() }}
@@ -310,7 +294,7 @@ jobs:
         run: chmod +x ./gradlew
       - name: Print Gradle version
         working-directory: intellij-aicoder
-        run: ../gradlew --version
+        run: ./gradlew --version
 
       - name: Remove Old Release Drafts
         env:
