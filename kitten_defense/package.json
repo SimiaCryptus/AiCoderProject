@@ -1,0 +1,33 @@
+{
+  "name": "cat-territory-game",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@react-three/drei": "^9.0.0",
+    "@react-three/fiber": "^8.0.0",
+    "@react-three/postprocessing": "^2.15.1",
+    "@types/node": "^16.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "@types/three": "^0.155.1",
+    "three": "^0.155.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "socket.io-client": "^4.7.2",
+    "zustand": "^4.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.0",
+    "vite": "^4.0.0",
+    "@types/socket.io-client": "^3.0.0",
+    "@vitejs/plugin-react": "^4.0.0"
+  },
+  "scripts": {
+    "clean": "rimraf src/**/*.d.ts",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "type-check": "tsc -p tsconfig.check.json",
+    "start": "vite preview"
+  }
+}
