@@ -108,6 +108,7 @@ jobs:
         run: |
           echo "Uploaded artifacts in distributions directory:"
           ls -la intellij-aicoder/build/distributions/
+
   build-windows-installer:
     name: Build Windows Installer
     runs-on: windows-latest
@@ -139,7 +140,7 @@ jobs:
         working-directory: SkyenetApps
         run: |
           echo "Starting SkyenetApps MSI build..."
-          ./gradlew shadowJar packageMsi --info
+          ./gradlew package
           echo "MSI build completed"
       - name: List MSI artifacts
         working-directory: SkyenetApps
