@@ -108,6 +108,50 @@ jobs:
         run: |
           echo "Uploaded artifacts in distributions directory:"
           ls -la intellij-aicoder/build/distributions/
+  build-windows-installer:
+    name: Build Windows Installer
+    runs-on: windows-latest
+    env:
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.logging.level=info"
+    steps:
+      - name: Fetch Sources
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: 17
+      - name: Print Java version
+        run: |
+          java -version
+          echo "JAVA_HOME=$JAVA_HOME"
+      - name: Install WiX Toolset
+        run: |
+          choco install wixtoolset -y
+      - name: Make Gradle wrapper executable
+        working-directory: SkyenetApps
+        run: |
+          # Ensure the wrapper is executable on Windows
+          chmod +x ./gradlew
+      - name: Build SkyenetApps MSI
+        working-directory: SkyenetApps
+        run: |
+          echo "Starting SkyenetApps MSI build..."
+          ./gradlew shadowJar packageMsi --info
+          echo "MSI build completed"
+      - name: List MSI artifacts
+        working-directory: SkyenetApps
+        run: |
+          echo "MSI artifacts in jpackage directory:"
+          Get-ChildItem -Path build/jpackage -Recurse -Filter *.msi | ForEach-Object { $_.FullName }
+      - name: Upload MSI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: skyenet-windows-installer
+          path: SkyenetApps/build/jpackage/*.msi
+
 
   test:
     name: Test
@@ -237,7 +281,7 @@ jobs:
   releaseDraft:
     name: Release draft
     if: github.event_name != 'pull_request'
-    needs: [ build, test, verify ]
+    needs: [ build, test, verify, build-windows-installer ]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -313,6 +357,12 @@ jobs:
         with:
           name: ${{ steps.artifact.outputs.filename }}
           path: ./artifact
+      - name: Download Windows Installer
+        uses: actions/download-artifact@v4
+        with:
+          name: skyenet-windows-installer
+          path: ./windows-installer
+
 
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
@@ -323,3 +373,12 @@ jobs:
           asset_path: ./artifact/intellij-aicoder-${{ needs.build.outputs.version }}/intellij-aicoder-${{ needs.build.outputs.version }}.zip
           asset_name: intellij-aicoder-${{ needs.build.outputs.version }}.zip
           asset_content_type: application/zip
+      - name: Upload Windows Installer Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.release_url }}
+          asset_path: ./windows-installer/SkyenetApps.msi
+          asset_name: SkyenetApps-${{ needs.build.outputs.version }}.msi
+          asset_content_type: application/x-msi
