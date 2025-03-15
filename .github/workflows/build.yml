@@ -136,6 +136,7 @@ jobs:
         run: |
           if (-Not (Test-Path "build\jpackage\SkyenetApps")) {
               New-Item -ItemType Directory -Force -Path "build\jpackage\SkyenetApps"
+          }
       - name: Make Gradle wrapper executable
         working-directory: SkyenetApps
         run: |
