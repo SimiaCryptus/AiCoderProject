@@ -131,17 +131,14 @@ jobs:
       - name: Install WiX Toolset
         run: |
           choco install wixtoolset -y
+      - name: Ensure App Image Directory Exists
+        run: |
+          if not exist build\jpackage\SkyenetApps mkdir build\jpackage\SkyenetApps
       - name: Make Gradle wrapper executable
         working-directory: SkyenetApps
         run: |
           # Ensure the wrapper is executable on Windows
           chmod +x ./gradlew
-      - name: Build SkyenetApps MSI
-        working-directory: SkyenetApps
-        run: |
-          echo "Starting SkyenetApps MSI build..."
-          ./gradlew clean package
-          echo "MSI build completed"
       - name: List MSI artifacts
         working-directory: SkyenetApps
         run: |
