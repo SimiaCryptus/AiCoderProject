@@ -140,8 +140,7 @@ jobs:
         working-directory: SkyenetApps
         run: |
           echo "Starting SkyenetApps MSI build..."
-          ./gradlew clean build
-          ./gradlew package
+          ./gradlew clean package
           echo "MSI build completed"
       - name: List MSI artifacts
         working-directory: SkyenetApps
