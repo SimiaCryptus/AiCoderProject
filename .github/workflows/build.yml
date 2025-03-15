@@ -146,7 +146,11 @@ jobs:
         working-directory: SkyenetApps
         run: |
           echo "MSI artifacts in jpackage directory:"
-          Get-ChildItem -Path build/jpackage -Recurse -Filter *.msi | ForEach-Object { $_.FullName }
+          if (Test-Path "build/jpackage") {
+            Get-ChildItem -Path build/jpackage -Recurse -Filter *.msi | ForEach-Object { $_.FullName }
+          } else {
+            Write-Output "build/jpackage directory not found."
+          }
       - name: Upload MSI artifact
         uses: actions/upload-artifact@v4
         with:
