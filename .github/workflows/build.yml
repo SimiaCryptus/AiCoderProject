@@ -141,10 +141,10 @@ jobs:
         working-directory: SkyenetApps
         run: |
           # Ensure the wrapper is executable on Windows
-          chmod +x ./gradlew
+          chmod +x ./gradlew.bat
       - name: Build Windows MSI Installer
         working-directory: SkyenetApps
-        run: ./gradlew packageMsi --info
+        run: ./gradlew.bat clean package
       - name: List MSI artifacts
         working-directory: SkyenetApps
         run: |
