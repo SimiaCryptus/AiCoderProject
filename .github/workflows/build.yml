@@ -132,8 +132,11 @@ jobs:
         run: |
           choco install wixtoolset -y
       - name: Ensure App Image Directory Exists
+        shell: pwsh
         run: |
-          if not exist build\jpackage\SkyenetApps mkdir build\jpackage\SkyenetApps
+          if (-Not (Test-Path "build\jpackage\SkyenetApps")) {
+              New-Item -ItemType Directory -Force -Path "build\jpackage\SkyenetApps"
+          }
       - name: Make Gradle wrapper executable
         working-directory: SkyenetApps
         run: |
