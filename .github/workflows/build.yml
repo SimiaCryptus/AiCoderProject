@@ -131,11 +131,19 @@ jobs:
       - name: Install WiX Toolset
         run: |
           choco install wixtoolset -y
+      - name: List jpackage directory content
+        run: |
+          echo "Diagnostic: Listing content of 'build\\jpackage' directory:"
+          if (Test-Path "build\\jpackage") {
+              Get-ChildItem -Path "build\\jpackage" -Recurse | ForEach-Object { Write-Output $_.FullName }
+          } else {
+              echo "Diagnostic: 'build\\jpackage' directory does not exist."
+          }
       - name: Ensure App Image Directory Exists
         shell: pwsh
         run: |
-          if (-Not (Test-Path "build\jpackage\SkyenetApps")) {
-              New-Item -ItemType Directory -Force -Path "build\jpackage\SkyenetApps"
+          if (-Not (Test-Path "build\\jpackage\\SkyenetApps")) {
+              New-Item -ItemType Directory -Force -Path "build\\jpackage\\SkyenetApps"
           }
       - name: Make Gradle wrapper executable
         working-directory: SkyenetApps
