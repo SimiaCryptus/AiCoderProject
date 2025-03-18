@@ -142,20 +142,9 @@ jobs:
         run: |
           # Ensure the wrapper is executable on Windows
           chmod +x ./gradlew.bat
-      - name: Build Project
-        working-directory: SkyenetApps
-        run: ./gradlew.bat clean packageMsi
-      - name: List jpackage directory content
-        run: |
-          echo "Diagnostic: Listing content of 'SkyenetApps\build\jpackage' directory:"
-          if (Test-Path "build\jpackage") {
-              Get-ChildItem -Path "SkyenetApps\build\jpackage" -Recurse | ForEach-Object { Write-Output $_.FullName }
-          } else {
-              echo "Diagnostic: 'SkyenetApps\build\jpackage' directory does not exist."
-          }
       - name: Build Windows MSI Installer
         working-directory: SkyenetApps
-        run: ./gradlew.bat package
+        run: ./gradlew.bat jpackage
       - name: List MSI artifacts
         working-directory: SkyenetApps
         run: |
