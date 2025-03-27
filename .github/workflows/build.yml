@@ -357,8 +357,6 @@ jobs:
             --draft \
             --title "v${{ needs.build.outputs.version }}" \
             --notes "${{ needs.build.outputs.changelog }}"
-          RELEASE_URL=$(gh release view "v${{ needs.build.outputs.version }}" --json url -q .url)
-          echo "release_url=$RELEASE_URL" >> $GITHUB_OUTPUT
 
       - name: Download Artifact
         uses: actions/download-artifact@v4
@@ -372,21 +370,18 @@ jobs:
           path: ./windows-installer
 
 
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
+      - name: Upload Plugin Release Asset
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.release_url }}
-          asset_path: ./artifact/intellij-aicoder-${{ needs.build.outputs.version }}/intellij-aicoder-${{ needs.build.outputs.version }}.zip
-          asset_name: intellij-aicoder-${{ needs.build.outputs.version }}.zip
-          asset_content_type: application/zip
+        run: |
+          echo "Uploading plugin asset..."
+          gh release upload "v${{ needs.build.outputs.version }}" \
+            "./artifact/intellij-aicoder-${{ needs.build.outputs.version }}/intellij-aicoder-${{ needs.build.outputs.version }}.zip"
+
       - name: Upload Windows Installer Asset
-        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.release_url }}
-          asset_path: ./windows-installer/SkyenetApps.msi
-          asset_name: SkyenetApps-${{ needs.build.outputs.version }}.msi
-          asset_content_type: application/x-msi
+        run: |
+          echo "Uploading Windows installer asset..."
+          gh release upload "v${{ needs.build.outputs.version }}" \
+            "./windows-installer/SkyenetApps.msi#SkyenetApps-${{ needs.build.outputs.version }}.msi"
