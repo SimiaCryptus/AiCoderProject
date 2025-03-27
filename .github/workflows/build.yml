@@ -289,7 +289,7 @@ jobs:
   releaseDraft:
     name: Release draft
     if: github.event_name != 'pull_request'
-    needs: [ build, test, verify, build-windows-installer ]
+    needs: [ build, test, build-windows-installer ]
     runs-on: ubuntu-latest
     permissions:
       contents: write
