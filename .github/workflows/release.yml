@@ -14,37 +14,26 @@ jobs:
       - name: Maximize Build Space
         uses: jlumbroso/free-disk-space@main
         with:
-          tool-cache: true
-          large-packages: true
-      - name: Dump GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ toJSON(github) }}
-        run: echo "$GITHUB_CONTEXT"
-      - name: Dump runner context
-        env:
-          RUNNER_CONTEXT: ${{ toJSON(runner) }}
-        run: echo "$RUNNER_CONTEXT"
+          tool-cache: false
+
       - name: Configure Git
         run: |
           git config --global init.defaultBranch main
           git --version
           echo "Git configuration:"
           git config --list
+
       - name: Fetch Sources
         uses: actions/checkout@v4
         with:
           submodules: recursive
-      - name: Gradle Wrapper Validation
-        uses: gradle/actions/wrapper-validation@v3
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: zulu
           java-version: 17
-      - name: Print Java version
-        run: |
-          java -version
-          echo "JAVA_HOME=$JAVA_HOME"
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
@@ -68,7 +57,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
-
 
       - name: Upload Release Asset
         env:
