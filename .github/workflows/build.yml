@@ -112,6 +112,7 @@ jobs:
   build-windows-installer:
     name: Build Windows Installer
     runs-on: windows-latest
+    needs: [ build ]
     env:
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.logging.level=info"
     steps:
@@ -137,6 +138,16 @@ jobs:
           if (-Not (Test-Path "build\\jpackage\\SkyenetApps")) {
               New-Item -ItemType Directory -Force -Path "build\\jpackage\\SkyenetApps"
           }
+      - name: Update SkyenetApps Version
+        shell: pwsh
+        run: |
+          $version = "${{ needs.build.outputs.version }}"
+          Write-Output "Setting SkyenetApps version to: $version"
+          $gradlePropertiesPath = "SkyenetApps/gradle.properties"
+          $content = Get-Content $gradlePropertiesPath -Raw
+          $updatedContent = $content -replace "libraryVersion\s*=\s*[0-9.]+", "libraryVersion = $version"
+          Set-Content -Path $gradlePropertiesPath -Value $updatedContent
+          Write-Output "Updated gradle.properties with new version"
       - name: Make Gradle wrapper executable
         working-directory: SkyenetApps
         run: |
@@ -385,5 +396,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Uploading Windows installer asset..."
+          MSI_FILE=$(find ./windows-installer -name "*.msi" -type f)
+          if [ -z "$MSI_FILE" ]; then
+            echo "Error: No MSI file found in windows-installer directory"
+            ls -la ./windows-installer
+            exit 1
+          fi
+          echo "Found MSI file: $MSI_FILE"
           gh release upload "v${{ needs.build.outputs.version }}" \
-            "./windows-installer/SkyenetApps-${{ needs.build.outputs.version }}.msi#SkyenetApps-${{ needs.build.outputs.version }}.msi"
+            "$MSI_FILE"
