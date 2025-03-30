@@ -390,3 +390,7 @@ jobs:
           asset_path: ./windows-installer/SkyenetApps.msi
           asset_name: SkyenetApps-${{ needs.build.outputs.version }}.msi
           asset_content_type: application/x-msi
+        run: |
+          echo "Uploading Windows installer asset..."
+          gh release upload "v${{ needs.build.outputs.version }}" \
+            "./windows-installer/SkyenetApps-${{ needs.build.outputs.version }}.msi#SkyenetApps-${{ needs.build.outputs.version }}.msi"
